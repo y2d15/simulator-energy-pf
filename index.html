@@ -193,6 +193,28 @@
     background: var(--sky-light);
   }
 
+  /* CHECKBOX */
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .checkbox-wrapper input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .checkbox-wrapper label {
+    cursor: pointer;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    color: var(--text) !important;
+  }
+
   /* BUTTON */
   .btn-run {
     display: block;
@@ -309,6 +331,7 @@
   .cum-neg { color: var(--neg); font-weight: 600; }
   .grace-row { background: rgba(230, 126, 34, 0.06) !important; }
   .repay-end { background: rgba(10, 127, 194, 0.06) !important; }
+  .balloon-row { background: rgba(153, 51, 153, 0.06) !important; }
 
   /* ASSUMPTIONS BOX */
   .assumptions {
@@ -570,6 +593,7 @@
         <div class="radio-group">
           <label><input type="radio" name="repay1Type" value="equal_payment" checked><span>원리금균등상환</span></label>
           <label><input type="radio" name="repay1Type" value="equal_principal"><span>원금균등상환</span></label>
+          <label><input type="radio" name="repay1Type" value="balloon"><span>만기일 일시 상환</span></label>
         </div>
       </div>
     </div>
@@ -577,52 +601,59 @@
 
   <!-- LOAN 2 -->
   <div class="card loan-card" id="loan2Card">
-    <div class="card-title loan2-title">대출 ② 신용대출</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>대출 금액</label>
-        <div class="rate-ctrl">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Amt',-.1,0,9999,0.1,'억원');updateAmtHint('loan2Amt','loan2AmtHint')">▼</button>
-          <input type="number" id="loan2Amt" value="1" min="0" max="9999" step="0.1" oninput="updateAmtHint('loan2Amt','loan2AmtHint')">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Amt',.1,0,9999,0.1,'억원');updateAmtHint('loan2Amt','loan2AmtHint')">▲</button>
-          <span class="rate-unit">억원</span>
+    <div class="checkbox-wrapper">
+      <input type="checkbox" id="loan2Enable" onchange="toggleLoan2()">
+      <label for="loan2Enable"><strong>대출 ② 추가 대출 사용</strong></label>
+    </div>
+    <div id="loan2Content" style="display:none">
+      <div class="card-title loan2-title">대출 ② 추가 대출</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>대출 금액</label>
+          <div class="rate-ctrl">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Amt',-.1,0,9999,0.1,'억원');updateAmtHint('loan2Amt','loan2AmtHint')">▼</button>
+            <input type="number" id="loan2Amt" value="1" min="0" max="9999" step="0.1" oninput="updateAmtHint('loan2Amt','loan2AmtHint')">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Amt',.1,0,9999,0.1,'억원');updateAmtHint('loan2Amt','loan2AmtHint')">▲</button>
+            <span class="rate-unit">억원</span>
+          </div>
+          <span class="hint" id="loan2AmtHint">₩100,000,000</span>
         </div>
-        <span class="hint" id="loan2AmtHint">₩100,000,000</span>
-      </div>
-      <div class="form-group">
-        <label>대출 금리</label>
-        <div class="rate-ctrl">
-          <button type="button" class="rate-btn" onclick="adjustRate('loan2Rate',-0.1)">▼</button>
-          <input type="number" id="loan2Rate" value="6.5" min="0" max="30" step="0.1" oninput="clampRate(this)">
-          <button type="button" class="rate-btn" onclick="adjustRate('loan2Rate',0.1)">▲</button>
-          <span class="rate-unit">%</span>
+        <div class="form-group">
+          <label>대출 금리</label>
+          <div class="rate-ctrl">
+            <button type="button" class="rate-btn" onclick="adjustRate('loan2Rate',-0.1)">▼</button>
+            <input type="number" id="loan2Rate" value="6.5" min="0" max="30" step="0.1" oninput="clampRate(this)">
+            <button type="button" class="rate-btn" onclick="adjustRate('loan2Rate',0.1)">▲</button>
+            <span class="rate-unit">%</span>
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <label>거치 기간</label>
-        <div class="rate-ctrl">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Grace',-1,0,10,1,'년')">▼</button>
-          <input type="number" id="loan2Grace" value="0" min="0" max="10" step="1">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Grace',1,0,10,1,'년')">▲</button>
-          <span class="rate-unit">년</span>
+        <div class="form-group">
+          <label>거치 기간</label>
+          <div class="rate-ctrl">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Grace',-1,0,10,1,'년')">▼</button>
+            <input type="number" id="loan2Grace" value="0" min="0" max="10" step="1">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Grace',1,0,10,1,'년')">▲</button>
+            <span class="rate-unit">년</span>
+          </div>
+          <span class="hint">이자만 납부하는 기간</span>
         </div>
-        <span class="hint">이자만 납부하는 기간</span>
-      </div>
-      <div class="form-group">
-        <label>총 대출 기간</label>
-        <div class="rate-ctrl">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Term',-1,1,30,1,'년')">▼</button>
-          <input type="number" id="loan2Term" value="5" min="1" max="30" step="1">
-          <button type="button" class="rate-btn" onclick="adjustStep('loan2Term',1,1,30,1,'년')">▲</button>
-          <span class="rate-unit">년</span>
+        <div class="form-group">
+          <label>총 대출 기간</label>
+          <div class="rate-ctrl">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Term',-1,1,30,1,'년')">▼</button>
+            <input type="number" id="loan2Term" value="5" min="1" max="30" step="1">
+            <button type="button" class="rate-btn" onclick="adjustStep('loan2Term',1,1,30,1,'년')">▲</button>
+            <span class="rate-unit">년</span>
+          </div>
+          <span class="hint">거치 기간 포함</span>
         </div>
-        <span class="hint">거치 기간 포함</span>
-      </div>
-      <div class="form-group" style="grid-column: span 2;">
-        <label>상환 방식</label>
-        <div class="radio-group">
-          <label><input type="radio" name="repay2Type" value="equal_payment" checked><span>원리금균등상환</span></label>
-          <label><input type="radio" name="repay2Type" value="equal_principal"><span>원금균등상환</span></label>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>상환 방식</label>
+          <div class="radio-group">
+            <label><input type="radio" name="repay2Type" value="equal_payment" checked><span>원리금균등상환</span></label>
+            <label><input type="radio" name="repay2Type" value="equal_principal"><span>원금균등상환</span></label>
+            <label><input type="radio" name="repay2Type" value="balloon"><span>만기일 일시 상환</span></label>
+          </div>
         </div>
       </div>
     </div>
@@ -746,6 +777,13 @@ document.getElementById('maintMode').addEventListener('change', function() {
   document.getElementById('maintFixedGroup').style.display = this.value === 'fixed' ? '' : 'none';
 });
 
+// Toggle Loan 2
+function toggleLoan2() {
+  const enabled = document.getElementById('loan2Enable').checked;
+  const content = document.getElementById('loan2Content');
+  content.style.display = enabled ? '' : 'none';
+}
+
 // Amount hint helpers
 function updateAmtHint(inputId, hintId) {
   const v = parseFloat(document.getElementById(inputId).value) || 0;
@@ -804,12 +842,13 @@ function _compute() {
   const loan1Grace  = parseInt(document.getElementById('loan1Grace').value)||0;
   const loan1Term   = parseInt(document.getElementById('loan1Term').value)||1;
   const repay1Type  = document.querySelector('input[name=repay1Type]:checked').value;
-  // Loan 2 (신용)
-  const loan2Amt    = Math.round((parseFloat(document.getElementById('loan2Amt').value)||0) * 100000000);
-  const loan2Rate   = parseFloat(document.getElementById('loan2Rate').value)||0;
-  const loan2Grace  = parseInt(document.getElementById('loan2Grace').value)||0;
-  const loan2Term   = parseInt(document.getElementById('loan2Term').value)||1;
-  const repay2Type  = document.querySelector('input[name=repay2Type]:checked').value;
+  // Loan 2 (추가)
+  const loan2Enabled = document.getElementById('loan2Enable').checked;
+  const loan2Amt    = loan2Enabled ? Math.round((parseFloat(document.getElementById('loan2Amt').value)||0) * 100000000) : 0;
+  const loan2Rate   = loan2Enabled ? parseFloat(document.getElementById('loan2Rate').value)||0 : 0;
+  const loan2Grace  = loan2Enabled ? parseInt(document.getElementById('loan2Grace').value)||0 : 0;
+  const loan2Term   = loan2Enabled ? parseInt(document.getElementById('loan2Term').value)||1 : 1;
+  const repay2Type  = loan2Enabled ? document.querySelector('input[name=repay2Type]:checked').value : 'equal_payment';
   // Combined (for backward compat references)
   const loanAmt     = loan1Amt + loan2Amt;
   const maintMode  = document.getElementById('maintMode').value;
@@ -893,11 +932,12 @@ function _compute() {
   const genNote = genMode === 'auto'
     ? `지역 일조 피크시간 ${rData.peakH}h/년 × ${capacity}kW = ${fmtKwh(annualGen)} kWh (기상청 통계 기반)`
     : `사용자 직접 입력 발전량 ${fmtKwh(annualGen)} kWh`;
+  const loan2Desc = loan2Enabled ? `신용 ₩${(loan2Amt/100000000).toFixed(1)}억` : '신용 미사용';
   document.getElementById('monthlyAssumptions').innerHTML = `
     <strong>핵심 가정 (1년 차)</strong><br>
     • 발전량: ${genNote}<br>
     • 판매단가: ₩${priceKwh.toLocaleString()}/kWh (SMP + REC 합산 고정 단가)<br>
-    • 1년 차 대출: 사업자 ₩${(loan1Amt/100000000).toFixed(1)}억 + 신용 ₩${(loan2Amt/100000000).toFixed(1)}억 합산 월 이자 ${fmt(monthlyInterestGrace)}<br>
+    • 1년 차 대출: 사업자 ₩${(loan1Amt/100000000).toFixed(1)}억 + ${loan2Desc} 합산 월 이자 ${fmt(monthlyInterestGrace)}<br>
     • 유지보수비: ${maintMode==='pct' ? '연간 매출의 5% 비례 배분' : `연 ₩${maintFixed.toLocaleString()} 고정 비례 배분`}<br>
     • 월별 발전량: 지역 월별 가중치 적용
   `;
@@ -922,7 +962,19 @@ function _compute() {
     }
     const repayYear = year - L.grace;
     if (repayYear > (L.term - L.grace)) return { principal:0, interest:0, total:0 };
-    if (L.repayType === 'equal_payment') {
+    
+    if (L.repayType === 'balloon') {
+      // 만기일 일시 상환: 상환기간 중 이자만 납부, 만기 시 원금
+      const repayPeriod = L.term - L.grace;
+      if (repayYear < repayPeriod) {
+        const interest = L.amt * (L.ratePct / 100);
+        return { principal:0, interest, total:interest };
+      } else {
+        // 최종 년도: 원금 + 이자
+        const interest = L.amt * (L.ratePct / 100);
+        return { principal:L.amt, interest, total:L.amt + interest };
+      }
+    } else if (L.repayType === 'equal_payment') {
       let bal = L.amt;
       for (let i = 0; i < (repayYear-1)*12; i++) {
         const mI = bal * L.mR;
@@ -936,6 +988,7 @@ function _compute() {
       }
       return { principal:ap, interest:ai, total:ap+ai };
     } else {
+      // equal_principal
       const ap = L.amt / (L.term - L.grace);
       const rem = L.amt - ap*(repayYear-1);
       const ai = rem * (L.ratePct/100);
@@ -974,18 +1027,22 @@ function _compute() {
     yTotMaint += yMaint; yTotExpense += yExpense; yTotNet += yNet;
 
     const isGrace = y <= gracePeriod;
-    const isRepayEnd = (y === loan1Term || y === loan2Term);
+    const isBalloon1 = (L1.repayType === 'balloon' && y === L1.term);
+    const isBalloon2 = (L2.repayType === 'balloon' && y === L2.term);
+    const isRepayEnd = (y === loan1Term && L1.repayType !== 'balloon') || (y === loan2Term && loan2Enabled && L2.repayType !== 'balloon');
     const isPayback = y === paybackYear;
 
     let cls = '';
     if (isPayback) cls = 'payback-row';
+    else if (isBalloon1 || isBalloon2) cls = 'balloon-row';
     else if (isGrace) cls = 'grace-row';
     else if (isRepayEnd) cls = 'repay-end';
 
     const tr = document.createElement('tr');
     tr.className = cls;
+    const marker = (isGrace ? ' 🔶' : '') + (isPayback ? ' ✅' : '') + ((isBalloon1 || isBalloon2) ? ' 🎈' : '');
     tr.innerHTML = `
-      <td>${y}년차${isGrace ? ' 🔶' : ''}${isPayback ? ' ✅' : ''}</td>
+      <td>${y}년차${marker}</td>
       <td>${fmtKwh(yGen)}</td>
       <td>${fmt(yRev)}</td>
       <td>${yPrincipal > 0 ? fmt(yPrincipal) : '<span style="color:var(--muted)">—</span>'}</td>
@@ -1000,7 +1057,7 @@ function _compute() {
   }
 
   yearlyFoot.innerHTML = `<tr>
-    <td>20년 합계</td>
+    <td>합계</td>
     <td>${fmtKwh(yTotGen)}</td>
     <td>${fmt(yTotRev)}</td>
     <td>${fmt(yTotPrincipal)}</td>
@@ -1012,53 +1069,23 @@ function _compute() {
     <td>${fmt(cumNet)}</td>
   </tr>`;
 
-  const r1Label = repay1Type === 'equal_payment' ? '원리금균등' : '원금균등';
-  const r2Label = repay2Type === 'equal_payment' ? '원리금균등' : '원금균등';
+  const repayDesc1 = L1.repayType === 'equal_payment' ? '원리금균등상환'
+                   : L1.repayType === 'equal_principal' ? '원금균등상환'
+                   : '만기일 일시 상환';
+  const repayDesc2 = loan2Enabled ? (L2.repayType === 'equal_payment' ? '원리금균등상환'
+                                    : L2.repayType === 'equal_principal' ? '원금균등상환'
+                                    : '만기일 일시 상환') : '미사용';
+  
   document.getElementById('yearlyAssumptions').innerHTML = `
-    <strong>핵심 가정 (장기)</strong><br>
-    • 패널 열화율: 연 0.5% 발전량 감소 (누적 20년 차: ${(Math.pow(0.995,19)*100).toFixed(1)}%)<br>
-    • 대출①(사업자): ₩${(loan1Amt/100000000).toFixed(1)}억 / ${loan1Rate}% / 거치 ${loan1Grace}년 / 총 ${loan1Term}년 / ${r1Label}<br>
-    • 대출②(신용): ₩${(loan2Amt/100000000).toFixed(1)}억 / ${loan2Rate}% / 거치 ${loan2Grace}년 / 총 ${loan2Term}년 / ${r2Label}<br>
-    • 유지보수비: ${maintMode==='pct' ? '연간 매출의 5%' : `연 고정 ₩${maintFixed.toLocaleString()}`}<br>
-    • SMP+REC 단가 고정 적용 (실제 SMP는 변동 가능)<br>
-    • 🔶 거치 기간 / ✅ 투자 회수 연차 / 파란 행: 대출 만료
-    ${paybackYear ? `<br>• <strong>예상 투자 회수 시점: ${paybackYear}년 차</strong>` : '<br>• <strong>20년 내 투자 회수 미달성</strong>'}
-  `;
-
-  // ── KPI ───────────────────────────────────────────────────────────────
-  document.getElementById('kpiRow').innerHTML = `
-    <div class="kpi sun">
-      <div class="kpi-label">연간 예상 발전량</div>
-      <div class="kpi-value">${(annualGen/1000).toFixed(1)}MWh</div>
-      <div class="kpi-sub">${fmtKwh(annualGen)} kWh / 년</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">연간 예상 매출 (1년차)</div>
-      <div class="kpi-value">${(annualRevYear1/100000000).toFixed(2)}억</div>
-      <div class="kpi-sub">${fmt(annualRevYear1)}</div>
-    </div>
-    <div class="kpi neg">
-      <div class="kpi-label">연간 이자 합산 (1년차)</div>
-      <div class="kpi-value">${(monthlyInterestGrace*12/100000000).toFixed(2)}억</div>
-      <div class="kpi-sub">사업자+신용 ${fmt(monthlyInterestGrace*12)}</div>
-    </div>
-    <div class="kpi grass">
-      <div class="kpi-label">예상 투자회수 시점</div>
-      <div class="kpi-value">${paybackYear ? paybackYear + '년차' : '20년↑'}</div>
-      <div class="kpi-sub">20년 누적 순수익 ${fmt(cumNet)}</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">kWh 판매단가</div>
-      <div class="kpi-value">₩${priceKwh.toLocaleString()}</div>
-      <div class="kpi-sub">SMP + REC 합산</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">지역 / 설비용량</div>
-      <div class="kpi-value">${capacity}kW</div>
-      <div class="kpi-sub">${region} · 피크시간 ${rData.peakH}h</div>
-    </div>
+    <strong>핵심 가정 (20년)</strong><br>
+    • 발전량 감소: 연 0.5% 열화율 적용<br>
+    • 대출 ① (사업자): ₩${(L1.amt/100000000).toFixed(1)}억 @ ${loan1Rate}% / ${loan1Grace}년 거치 / ${loan1Term}년 전체 / ${repayDesc1}<br>
+    • 대출 ② ${loan2Enabled ? `(추가): ₩${(L2.amt/100000000).toFixed(1)}억 @ ${loan2Rate}% / ${loan2Grace}년 거치 / ${loan2Term}년 전체 / ${repayDesc2}` : '미사용'}<br>
+    • 손익분기점: ${paybackYear ? `${paybackYear}년차` : '20년 이내 미달성'} 🔶=거치기간 ✅=손익분기 🎈=만기일시상환<br>
+    • 누적 수익: ${fmt(cumNet)}
   `;
 }
 </script>
+
 </body>
 </html>
